@@ -3,5 +3,10 @@ name = "ingan"
 version = "0.1.0"
 edition = "2024"
 
+[lib]
+name = "ingan"
+crate-type = ["cdylib"] # Essential for Python to load it as a shared library
+
 [dependencies]
+pyo3 = { version = "0.23", features = ["extension-module"] }
 rstest = "0.26.1"
