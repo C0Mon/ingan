@@ -1,6 +1,6 @@
 use std::fs::File;
 
-use ingan::{format::{Colour, Ppm}, math::Vec3};
+use ingan::{format::{Colour, Ppm}, math::{Vec3, Vec2}};
 
 fn main() {
 
@@ -10,15 +10,17 @@ fn main() {
 
 
     // Triangle
-    
+    let a = Vec2::new(0.2 * image.width as f64, 0.2 * image.height as f64);
+    let b = Vec2::new(0.7 * image.width as f64, 0.4 * image.height as f64);
+    let c = Vec2::new(0.4 * image.width as f64, 0.8 * image.height as f64);
+
     for i in 1..image.height {
         for j in 1..image.width {
-            let pixel: Colour = Colour::new(
-                j as f64 / (image.width - 1) as f64,
-                i as f64/ (image.height - 1) as f64,
-                0.0
-            );
-            image.set_pixel(j, i, pixel);
+            let p = Vec2::new(j as f64, i as f64);
+            let inside = p.point_in_triangle(a, b, c);
+            if inside {
+                image.set_pixel(j, i, Colour::new(0.0, 0.0, 1.0))
+            };
         }
     }
 
