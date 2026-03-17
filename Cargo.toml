@@ -5,8 +5,10 @@ edition = "2024"
 
 [lib]
 name = "ingan"
-crate-type = ["cdylib"] # Essential for Python to load it as a shared library
+crate-type = ["rlib"]
 
 [dependencies]
-pyo3 = { version = "0.23", features = ["extension-module"] }
 rstest = "0.26.1"
+rand = "0.9.2"
+softbuffer = "0.4.8"
+winit = "0.29"

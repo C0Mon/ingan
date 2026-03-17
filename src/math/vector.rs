@@ -3,6 +3,7 @@ use std::fmt::{Display};
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
 
+
 pub trait Vector {
     fn dot(&self, other: Self) -> f64;
     fn length_squared(&self) -> f64;
@@ -70,7 +71,6 @@ impl Vec2 {
 }
 
 
-
 #[derive(Debug, Clone, Copy, PartialEq)]
 /// # 3D Vector
 /// A digital representation of a 3D vector, with methods useful for raytracing
@@ -115,7 +115,7 @@ impl Vec3 {
     /// Constructor used to create Vec3
     /// # Example
     /// ```
-    /// use raytracer::math::vector::Vec3;
+    /// use ingan::math::vector::Vec3;
     ///
     /// // This creates a vector called direction with x: 3.0, y: 4.0, and z: 5.0
     /// let direction = Vec3::new(3.0, 4.0, 5.0);
@@ -129,6 +129,13 @@ impl Vec3 {
             self.z * other.x - self.x * other.z,
             self.x * other.y - self.y * other.x,
         )
+    }
+    pub fn vertex_to_screen(&self, num_pixels: Vec2) -> Vec2 {
+        let screen_height_world = 5.0;
+        let pixels_per_world_unit = num_pixels.y / screen_height_world;
+
+        let pixel_offset = Vec2::new(self.x, self.y) * pixels_per_world_unit;
+        num_pixels / 2.0 + pixel_offset
     }
 }
 
@@ -153,6 +160,16 @@ impl Add for Vec3 {
     }
 }
 
+impl Add for Vec2 {
+    type Output = Self;
+    
+    fn add(self, rhs: Self) -> Self {
+        Self {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+        }
+    }
+}
 
 impl Default for Vec2 {
     fn default() -> Self {

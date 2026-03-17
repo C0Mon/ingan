@@ -1,22 +1,34 @@
 use std::{fs::File, io::{BufRead, BufReader}, path::Path};
+use rand::Rng;
 
-use crate::math::Vec3;
+use crate::{format::Colour, math::{Transform, Vec3}};
 
 
+#[derive(Clone)]
 pub struct Obj {
-    pub triangle_points: Vec<Vec3>
+    pub triangle_points: Vec<Vec3>,
+    pub triange_colours: Vec<Colour>,
+    pub transform: Transform,
 }
 
 impl Obj {
     pub fn new() -> Self {
-        Self { triangle_points: Vec::new() }
+        Self { 
+        triangle_points: Vec::new(), 
+        triange_colours: Vec::new(), 
+        transform: Transform::default() 
+    }
     }
 
-    pub fn read_obj_file(&mut self, path: &str) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn get_transformed_point(&self, index: usize) -> Vec3 {
+        self.triangle_points[index] + self.transform.position
+    }
+
+    pub fn read_obj_file(&mut self, path: &str) {
 
         let file_path = Path::new(path);
 
-        let file = File::open(file_path)?;
+        let file = File::open(file_path).expect("Error reading file");
         let reader = BufReader::new(file);
 
         println!("Reading file line-by-line:\n");
@@ -25,7 +37,7 @@ impl Obj {
 
         // Read each line form the file
         for line_result in reader.lines() {
-            let line = line_result?;
+            let line = line_result.expect("Error reading line");
             let line = line.trim();
 
             let start_code = &line[..2];
@@ -48,7 +60,10 @@ impl Obj {
                 }
             }
         }
-        Ok(())
+        let mut rng = rand::rng();
+        for _i in 0..self.triangle_points.len() {
+            self.triange_colours.push(Colour::new(rng.random_range(0.0..1.0), rng.random_range(0.0..1.0), rng.random_range(0.0..1.0)));
+        }
     }
 
     pub fn print_points(&self) {
