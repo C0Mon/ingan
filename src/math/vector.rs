@@ -1,4 +1,4 @@
-use std::fmt::{Display};
+use std::{f64, fmt::Display};
 #[doc(inline)]
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
@@ -136,6 +136,40 @@ impl Vec3 {
 
         let pixel_offset = Vec2::new(self.x, self.y) * pixels_per_world_unit;
         num_pixels / 2.0 + pixel_offset
+    }
+
+    pub fn rotate(&self, rotation: Vec3) -> Self {
+        let mut rotated_vector = self.rotate_around_x(rotation.x);
+        rotated_vector = rotated_vector.rotate_around_y(rotation.y);
+        rotated_vector.rotate_around_z(rotation.z)
+    }
+    pub fn rotate_around_x(&self, theta: f64) -> Self { 
+        Self {
+            x: self.x,
+            y: (self.y * f64::cos(theta)) - (self.z * f64::sin(theta)),
+            z: (self.y * f64::sin(theta)) + (self.z * f64::cos(theta))
+        }
+    }
+    pub fn rotate_around_y(&self, theta: f64) -> Self {
+        Self {
+            x: (self.x * f64::cos(theta)) + (self.z * f64::sin(theta)),
+            y: self.y,
+            z: (self.z * f64::cos(theta)) - (self.x * f64::sin(theta))
+        }
+    }
+    pub fn rotate_around_z(&self, theta: f64) -> Self {
+        Self {
+            x: (self.x * f64::cos(theta)) - (self.y * f64::sin(theta)),
+            y: (self.x * f64::sin(theta)) + (self.y * f64::cos(theta)),
+            z: self.z
+        }
+    }
+    pub fn max() -> Self{
+        Self {
+            x: f64::INFINITY,
+            y: f64::INFINITY,
+            z: f64::INFINITY,
+        }
     }
 }
 

@@ -21,7 +21,11 @@ impl Obj {
     }
 
     pub fn get_transformed_point(&self, index: usize) -> Vec3 {
-        self.triangle_points[index] + self.transform.position
+        let theta = self.transform.rotation;
+        let position = self.transform.position;
+        let mut point = self.triangle_points[index];
+        point = point.rotate(theta);
+        point + position
     }
 
     pub fn read_obj_file(&mut self, path: &str) {
@@ -73,5 +77,16 @@ impl Obj {
             }
             print!("{}  |   ", self.triangle_points[i]);
         }
+    }
+    pub fn get_transformed_points(&self) -> Vec<Vec3>{
+        let theta = self.transform.rotation;
+        let position = self.transform.position;
+        let mut transformed_triangles = Vec::new();
+        for i in (0..self.triangle_points.len()) { 
+            let mut point = self.triangle_points[i];
+            point = point + position;
+            transformed_triangles.push(point.rotate(theta));
+        }
+        transformed_triangles
     }
 }

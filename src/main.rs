@@ -1,6 +1,7 @@
 use std::num::NonZeroU32;
 use std::sync::Arc;
 use ingan::format::Obj;
+use ingan::math::Vec3;
 use ingan::render::Render3D;
 use softbuffer::Surface;
 use winit::event::{DeviceId, ElementState, Event, KeyEvent, WindowEvent};
@@ -42,12 +43,15 @@ fn main() {
             },
             _ => {}
             }
-            _ => {}
+            _ => {
+                app.renderer.get_model(0).transform.rotation += Vec3::new(0.1, 0.1, 0.1);
+                app.window.request_redraw();
+            }
         }
     }).unwrap();
 }
 
-fn on_key_input(device_id: DeviceId, event: KeyEvent, is_synthetic: bool, app: &mut App) {
+fn on_key_input(_device_id: DeviceId, event: KeyEvent, _is_synthetic: bool, app: &mut App) {
     if event.state == ElementState::Pressed && !event.repeat {
         match event.key_without_modifiers().as_ref() {
             Key::Character("a") => {
@@ -87,7 +91,6 @@ fn on_draw(app: &mut App) {
 
     app.renderer.width = width as usize;
     app.renderer.height = height as usize;
-    println!("{}", app.renderer.get_model(0).transform.position);
     app.renderer.render_scene();
     let colour_buffer = app.renderer.get_buffer();
 

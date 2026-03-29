@@ -1,4 +1,6 @@
-use crate::{format::{Colour, Obj}, math::{Interval, Vec2, Vec3}};
+use core::f64;
+
+use crate::{format::{Colour, Obj}, math::{Interval, Vec2, Vec3, vector::Vector}};
 
 pub struct Render3D {
     pub width: usize,
@@ -40,10 +42,16 @@ impl Render3D {
 
 impl Render3D {
     pub fn render(model: &Obj, buffer: &mut [Colour], size: Vec2, width: usize, height: usize) {
+        let mut z_buffer = vec![f64::INFINITY; buffer.len()];
+        let camera_coords = Vec3::new(0.0 ,0.0 ,-2.0);
         for i in (0..model.triangle_points.len()).step_by(3) {
-            let a = model.get_transformed_point(i).vertex_to_screen(size);
-            let b = model.get_transformed_point(i + 1).vertex_to_screen(size);
-            let c = model.get_transformed_point(i + 2).vertex_to_screen(size);
+            let point1 = model.get_transformed_point(i);
+            let point2 = model.get_transformed_point(i + 1);
+            let point3 = model.get_transformed_point(i + 2);
+
+            let a =  point1.vertex_to_screen(size);
+            let b = point2.vertex_to_screen(size);
+            let c = point3.vertex_to_screen(size);
             
             // Triangle bounds
             let min_x = f64::min(f64::min(a.x, b.x), c.x);
@@ -63,10 +71,14 @@ impl Render3D {
             for y in block_start_y..=block_end_y {
                 for x in block_start_x..=block_end_x {
                     let pixel = Vec2::new(x as f64, y as f64);
-                    if pixel.point_in_triangle(a, b, c) {
+                    if pixel.point_in_triangle(a, b, c) {i
                         let index = y * width + x;
-                        if index < buffer.len() {
-                            buffer[index] = model.triange_colours[i/3];
+                        let z = (camera_coords - ((point1 + point2 + point3) / 3.0)).length();
+                        if z_buffer[index] > z {
+                            z_buffer[index] = z;
+                            if index < buffer.len() {
+                                buffer[index] = model.triange_colours[i/3];
+                            }
                         }
                     }
                 }
@@ -81,5 +93,12 @@ impl Render3D {
             result.push((v.z * 255.0) as u8);
         }
         result
+    }
+
+    pub fn calculate_depth(&self, triangle_points: &Vec<Vec3>) -> f64 {
+        let area = f64::abs((triangle_points[1].x, triangle_points[0].x ) * (triangle_points[2].y - triangle_points[0].y) - (triangle_points[2].x - triangle_points[0].x) * (triangle_points[1].y - triangle_points[0].y));
+        if area == 0.0 {
+            panic!("Expect");
+        }
     }
 }
